@@ -58,31 +58,35 @@ function getFormattedDateTime () {
   return `${year}${month}${day}${hours}${minutes}${seconds}`;
 }
 
-let oldFetch = fetch;
-function hookFetch (...args) {
-  return new Promise((resolve, reject) => {
-    oldFetch.call(this, ...args).then((response) => {
-      if (
-        args.length !== 0 &&
-        args[0].indexOf &&
-        args[0].indexOf("https://api.bannergress.com/bnrs/") !== -1
-      ) {
-        const oldJson = response.json;
-        response.json = function () {
-          return new Promise((resolve, reject) => {
-            oldJson.apply(this, arguments).then((result) => {
-              var missionData = result.missions;
-              generateGPX(missionData);
-              resolve(result);
-            });
-          });
-        };
-      }
-      resolve(response);
-    });
-  });
-}
+// 保存原始的fetch函数
+const originalFetch = window.fetch;
 
+// 重写window.fetch函数
+window.fetch = function (...args) {
+  // 检查请求的URL是否为我们想要拦截的API
+  if (args.length > 0 && typeof args[0] === 'string' && args[0].includes('https://api.bannergress.com/bnrs/')) {
+    // 调用原始fetch函数并处理响应
+    return originalFetch.apply(this, args).then(response => {
+      // 克隆响应对象以修改它
+      const clonedResponse = response.clone();
+      // 修改响应中的JSON数据
+      return clonedResponse.json().then(data => {
+        // 在这里修改data，例如：
+        var missionData = data.missions;
+        generateGPX(missionData);
+        // 创建一个新的响应对象并返回
+        return new Response(JSON.stringify(data), {
+          status: clonedResponse.status,
+          statusText: clonedResponse.statusText,
+          headers: clonedResponse.headers
+        });
+      });
+    });
+  } else {
+    // 对于其他请求，直接调用原始fetch函数
+    return originalFetch.apply(this, args);
+  }
+};
 function generateGPX (missionData) {
   var stepsData = [];
   const creator = new GPXCreator("MyGPX", "Example GPX file generated with GPXCreator");
