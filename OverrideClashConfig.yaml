@@ -38,8 +38,6 @@ rules:
   - DOMAIN-SUFFIX,cache.pack.google.com,DIRECT
   - DOMAIN-SUFFIX,clickserve.dartsearch.net,DIRECT
   - DOMAIN-SUFFIX,crl.pki.goog,DIRECT
-  - DOMAIN-SUFFIX,dl.google.com,DIRECT
-  - DOMAIN-SUFFIX,dl.l.google.com,DIRECT
   - DOMAIN-SUFFIX,googletagmanager.com,DIRECT
   - DOMAIN-SUFFIX,googletagservices.com,DIRECT
   - DOMAIN-SUFFIX,gtm.oasisfeng.com,DIRECT
